@@ -15,10 +15,13 @@ MAX_TIME_LOAD = 20
 MIN_TIME_LOAD = 2
 
 xpath = {
-   "decline_cookies": "/html/body/div[6]/div[1]/div/div[2]/div/div/div/div/div[2]/div/button[2]",
+    "decline_cookies": "/html/body/div[6]/div[1]/div/div[2]/div/div/div/div/div[2]/div/button[2]",
     "save_login_not_now_button": "//div[contains(text(), 'Ahora no')]",
     "notification_not_now_button": "//button[contains(text(), 'Ahora no')]",
     "like_button": "//*[@aria-label='Me gusta']",
+    "comment_button": "//*[@aria-label='Comentar']",
+    "comment_input": "//textarea[@aria-label='Añade un comentario...']",
+    "post_button": "/html/body/div[2]/div/div/div[2]/div/div/div[1]/div[1]/div[1]/section/main/div/div[1]/div/div[2]/div/div[4]/section/div/form/div/div[2]/div",
     "modal": "/html/body/div[6]/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[2]",
     "cancel_unfollow_button": "//button[contains(text(), 'Cancel')]",
 }
@@ -29,7 +32,7 @@ css_selector = {
 
 urls = {
     "login": "https://www.instagram.com/accounts/login/",
-    "post": "https://www.instagram.com/p/CzZQt6BIsck/"
+    "post": "https://www.instagram.com/p/C9sNeHNubQs/"
 }
 
 
@@ -51,7 +54,7 @@ class InstaFollower:
                 EC.presence_of_element_located((By.XPATH, xpath["decline_cookies"]))
             )
             # Dismiss the cookie warning by clicking an element or button
-            cookie_warning[0].click()
+            cookie_warning.click()
         except:
             pass
 
@@ -83,14 +86,36 @@ class InstaFollower:
             pass
 
     def like_to_post(self):
-        self.driver.get(xpath["post"])
+        self.driver.get(urls["post"])
 
         # Click like
         like_button = WebDriverWait(self.driver, MAX_TIME_LOAD).until(
-        EC.element_to_be_clickable((By.XPATH, xpath["like_button"]))
+            EC.element_to_be_clickable((By.XPATH, xpath["like_button"]))
         )
         like_button.click()
         print("Like dado")
+    
+    def comment_on_post(self, comment):
+        self.driver.get(urls["post"])
+
+        # Click the comment button
+        comment_button = WebDriverWait(self.driver, MAX_TIME_LOAD).until(
+            EC.element_to_be_clickable((By.XPATH, xpath["comment_button"]))
+        )
+        comment_button.click()
+
+        # Enter the comment
+        comment_input = WebDriverWait(self.driver, MAX_TIME_LOAD).until(
+            EC.presence_of_element_located((By.XPATH, xpath["comment_input"]))
+        )
+        comment_input.send_keys(comment)
+
+        # Post the comment
+        post_button = WebDriverWait(self.driver, MAX_TIME_LOAD).until(
+            EC.element_to_be_clickable((By.XPATH, xpath["post_button"]))
+        )
+        post_button.click()
+        print("Comentario publicado")
     
     def find_followers(self, account_name):
         WebDriverWait(self.driver, MIN_TIME_LOAD)
@@ -106,7 +131,6 @@ class InstaFollower:
             self.driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight", modal)
             WebDriverWait(self.driver, MIN_TIME_LOAD)
   
-
     def follow(self):
         # Check and update the (CSS) Selector for the "Follow" buttons as required. 
         all_buttons = self.driver.find_elements(By.CSS_SELECTOR, value=css_selector["follows_buttons"])
@@ -123,5 +147,8 @@ class InstaFollower:
 
 bot = InstaFollower()
 bot.login()
-bot.find_followers("leomessi")
+bot.like_to_post()
+bot.comment_on_post("Me encanto el Gus Gus!")
+bot.comment_on_post("Lindo Gus Gus")
+#bot.find_followers("rabinquinteros")
 bot.close_browser()
