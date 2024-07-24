@@ -9,7 +9,7 @@ import os
 
 load_dotenv()
 
-USERNAME = os.getenv("USERNAME")
+USUARIO = os.getenv("USUARIO")
 PASSWORD = os.getenv("PASSWORD")
 MAX_TIME_LOAD = 20
 MIN_TIME_LOAD = 2
@@ -58,7 +58,7 @@ class InstaFollower:
         username = self.driver.find_element(by=By.NAME, value="username")
         password = self.driver.find_element(by=By.NAME, value="password")
 
-        username.send_keys(USERNAME)
+        username.send_keys(USUARIO)
         password.send_keys(PASSWORD)
 
         WebDriverWait(self.driver, MIN_TIME_LOAD)
